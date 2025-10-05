@@ -1,0 +1,875 @@
+---
+import "@/styles/landing.css";
+
+import LandingPage from "astro-spaceship/components/LandingPage/Spaceship.astro";
+import { ENV } from 'varlock/env';
+---
+
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{ENV.SPACESHIP_TITLE}</title>
+  <link rel="icon" type="image/png" href="/logo.png" />
+</head>
+<body>
+  <div class="page-container">
+    <LandingPage />
+    
+    <!-- Get Started Button -->
+    <button id="login-btn" class="get-started-button">
+      Get Started
+    </button>
+    
+    <!-- Login/Signup Modal -->
+    <div id="auth-modal" class="modal-overlay">
+      <div class="modal-content">
+        <button id="close-modal" class="close-button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+        
+        <div class="auth-container">
+          <div class="auth-header">
+            <h2 class="auth-title">Welcome to OrbitOne</h2>
+            <p class="auth-subtitle">Choose your account type to continue</p>
+          </div>
+          
+          <!-- Tab Navigation -->
+          <div class="tab-navigation">
+            <button class="tab-button active" data-tab="login">Login</button>
+            <button class="tab-button" data-tab="signup">Sign Up</button>
+          </div>
+          
+          <!-- Login Tab Content -->
+          <div id="login-tab" class="tab-content active">
+            <div class="account-type-selector">
+              <button class="account-type-btn active" data-type="user">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                Voyager
+              </button>
+              <button class="account-type-btn" data-type="company">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                  <line x1="8" y1="21" x2="16" y2="21"></line>
+                  <line x1="12" y1="17" x2="12" y2="21"></line>
+                </svg>
+                Partner
+              </button>
+            </div>
+            
+            <form class="auth-form">
+              <div class="form-group">
+                <label for="login-email">Email</label>
+                <input type="email" id="login-email" placeholder="Enter your email" required>
+              </div>
+              <div class="form-group">
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" placeholder="Enter your password" required>
+              </div>
+              <button type="submit" class="submit-button">Sign In</button>
+            </form>
+            
+            <div class="auth-footer">
+              <a href="#" class="forgot-password">Forgot password?</a>
+            </div>
+          </div>
+          
+          <!-- Signup Tab Content -->
+          <div id="signup-tab" class="tab-content">
+            <div class="account-type-selector">
+              <button class="account-type-btn active" data-type="user">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                Voyager
+              </button>
+              <button class="account-type-btn" data-type="company">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                  <line x1="8" y1="21" x2="16" y2="21"></line>
+                  <line x1="12" y1="17" x2="12" y2="21"></line>
+                </svg>
+                Partner
+              </button>
+            </div>
+            
+            <form class="auth-form">
+              <div class="form-group">
+                <label for="signup-name">Full Name</label>
+                <input type="text" id="signup-name" placeholder="Enter your full name" required>
+              </div>
+              <div class="form-group">
+                <label for="signup-email">Email</label>
+                <input type="email" id="signup-email" placeholder="Enter your email" required>
+              </div>
+              <div class="form-group">
+                <label for="signup-password">Password</label>
+                <input type="password" id="signup-password" placeholder="Create a password" required>
+              </div>
+              <div class="form-group">
+                <label for="signup-confirm">Confirm Password</label>
+                <input type="password" id="signup-confirm" placeholder="Confirm your password" required>
+              </div>
+              <button type="submit" class="submit-button">Create Account</button>
+            </form>
+            
+            <div class="auth-footer">
+              <p class="terms-text">By signing up, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Mesh Network Canvas -->
+    <canvas id="mesh-network" class="mesh-canvas"></canvas>
+  </div>
+
+  <script>
+    class SatelliteNetwork {
+      constructor() {
+        this.canvas = document.getElementById('mesh-network');
+        this.ctx = this.canvas.getContext('2d');
+        this.satellites = [];
+        this.connections = [];
+        this.rotationSpeed = 0.0005; // Anti-clockwise rotation speed
+        this.centerX = 0;
+        this.centerY = 0;
+        this.animationStartTime = Date.now();
+        
+        this.init();
+      }
+
+      init() {
+        this.resizeCanvas();
+        this.findSatellites();
+        this.animate();
+        
+        window.addEventListener('resize', () => {
+          this.resizeCanvas();
+          this.findSatellites();
+        });
+      }
+
+      resizeCanvas() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+        this.centerX = window.innerWidth / 2;
+        this.centerY = window.innerHeight / 2;
+      }
+
+      findSatellites() {
+        this.satellites = [];
+        
+        // Actual satellite names from the vault
+        const satelliteNames = [
+          'Landsat', 'CYGNSS', 'Terra', 'Aqua', 'Aura', 'GOES-16', 
+          'GRACE-FO', 'ICESat-2', 'Jason-3', 'NOAA-20', 'OSAM-1', 
+          'SMAP', 'Suomi NPP', 'Swift', 'TESS'
+        ];
+        
+        const satelliteCount = satelliteNames.length;
+        const radius = 300; // Fixed radius for perfect circle
+        
+        for (let i = 0; i < satelliteCount; i++) {
+          const angle = (i / satelliteCount) * Math.PI * 2;
+          
+          const x = this.centerX + Math.cos(angle) * radius;
+          const y = this.centerY + Math.sin(angle) * radius;
+          
+          this.satellites.push({
+            originalX: x,
+            originalY: y,
+            currentX: x,
+            currentY: y,
+            angle: angle,
+            radius: radius,
+            name: satelliteNames[i],
+            element: null // We'll draw these on canvas instead of DOM elements
+          });
+        }
+        
+        this.createMeshConnections();
+      }
+
+      createMeshConnections() {
+        this.connections = [];
+        
+        // Create circular connections - each satellite connects to the next one
+        for (let i = 0; i < this.satellites.length; i++) {
+          const nextIndex = (i + 1) % this.satellites.length;
+          
+          this.connections.push({
+            from: i,
+            to: nextIndex,
+            opacity: 0,
+            maxOpacity: 0.3,
+            delay: i * 200, // Staggered animation delay
+            type: 'circular'
+          });
+        }
+        
+        // Add cross-wise connections for mesh network
+        for (let i = 0; i < this.satellites.length; i++) {
+          for (let j = i + 2; j < this.satellites.length; j++) {
+            // Skip adjacent connections (already handled by circular)
+            if (j === i + 1 || (i === 0 && j === this.satellites.length - 1)) continue;
+            
+            // Only connect if distance is reasonable (not too far)
+            const maxConnections = Math.floor(this.satellites.length / 3);
+            if (j - i <= maxConnections) {
+              this.connections.push({
+                from: i,
+                to: j,
+                opacity: 0,
+                maxOpacity: 0.15,
+                delay: (i + j) * 150,
+                type: 'cross'
+              });
+            }
+          }
+        }
+      }
+
+      startRotation() {
+        // No DOM elements to position since we're drawing on canvas
+      }
+
+      updateSatellitePositions(time) {
+        const rotationAngle = time * this.rotationSpeed;
+        
+        this.satellites.forEach(satellite => {
+          // Calculate new position based on rotation
+          const newAngle = satellite.angle - rotationAngle; // Anti-clockwise
+          satellite.currentX = this.centerX + Math.cos(newAngle) * satellite.radius;
+          satellite.currentY = this.centerY + Math.sin(newAngle) * satellite.radius;
+        });
+      }
+
+      drawSatellites() {
+        this.satellites.forEach((satellite, index) => {
+          // Create pulsing effect
+          const pulseIntensity = Math.sin(Date.now() * 0.003 + index * 0.5) * 0.3 + 0.7;
+          
+          // Draw outer glow ring
+          this.ctx.beginPath();
+          this.ctx.arc(satellite.currentX, satellite.currentY, 8 * pulseIntensity, 0, Math.PI * 2);
+          this.ctx.fillStyle = `rgba(102, 126, 234, ${0.2 * pulseIntensity})`;
+          this.ctx.fill();
+          
+          // Draw main satellite dot with gradient
+          const gradient = this.ctx.createRadialGradient(
+            satellite.currentX, satellite.currentY, 0,
+            satellite.currentX, satellite.currentY, 6
+          );
+          gradient.addColorStop(0, '#ffffff');
+          gradient.addColorStop(0.3, '#667eea');
+          gradient.addColorStop(1, '#764ba2');
+          
+          this.ctx.beginPath();
+          this.ctx.arc(satellite.currentX, satellite.currentY, 5, 0, Math.PI * 2);
+          this.ctx.fillStyle = gradient;
+          this.ctx.fill();
+          
+          // Add bright center
+          this.ctx.beginPath();
+          this.ctx.arc(satellite.currentX, satellite.currentY, 2, 0, Math.PI * 2);
+          this.ctx.fillStyle = '#ffffff';
+          this.ctx.fill();
+          
+          // Draw satellite name with better typography
+          this.ctx.font = 'bold 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+          this.ctx.fillStyle = '#ffffff';
+          this.ctx.textAlign = 'center';
+          this.ctx.textBaseline = 'middle';
+          
+          // Position text with better spacing
+          const currentAngle = satellite.angle - (Date.now() * this.rotationSpeed);
+          const textOffset = 25;
+          const textX = satellite.currentX + Math.cos(currentAngle) * textOffset;
+          const textY = satellite.currentY + Math.sin(currentAngle) * textOffset;
+          
+          // Draw text background for better readability
+          const textMetrics = this.ctx.measureText(satellite.name);
+          const textWidth = textMetrics.width;
+          const textHeight = 16;
+          
+          this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+          this.ctx.fillRect(textX - textWidth/2 - 4, textY - textHeight/2 - 2, textWidth + 8, textHeight + 4);
+          
+          // Draw the text
+          this.ctx.fillStyle = '#ffffff';
+          this.ctx.fillText(satellite.name, textX, textY);
+        });
+      }
+
+      animate() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        const currentTime = Date.now();
+        const elapsedTime = currentTime - this.animationStartTime;
+        
+        // Update satellite positions
+        if (this.satellites.length > 0) {
+          this.updateSatellitePositions(elapsedTime);
+          this.drawSatellites();
+          this.drawConnections(elapsedTime);
+        }
+        
+        requestAnimationFrame(() => this.animate());
+      }
+
+      drawConnections(time) {
+        this.connections.forEach(connection => {
+          // Fade in connection over time
+          if (time > connection.delay) {
+            const fadeInTime = 2000;
+            const fadeProgress = Math.min((time - connection.delay) / fadeInTime, 1);
+            connection.opacity = fadeProgress * connection.maxOpacity;
+          }
+          
+          if (connection.opacity > 0) {
+            const fromSat = this.satellites[connection.from];
+            const toSat = this.satellites[connection.to];
+            
+            if (fromSat && toSat) {
+              this.drawConnection(fromSat, toSat, connection.opacity, connection.type);
+            }
+          }
+        });
+      }
+
+      drawConnection(fromSat, toSat, opacity, connectionType = 'circular') {
+        const time = Date.now() * 0.002;
+        const shimmer = Math.sin(time) * 0.2 + 0.8;
+        
+        // Use subtle whitish colors
+        const baseColor = connectionType === 'circular' ? 
+          `rgba(255, 255, 255, ${opacity * shimmer})` : 
+          `rgba(200, 200, 200, ${opacity * shimmer})`;
+        
+        const glowColor = connectionType === 'circular' ? 
+          `rgba(255, 255, 255, ${opacity * 0.2})` : 
+          `rgba(180, 180, 180, ${opacity * 0.1})`;
+        
+        // Draw subtle outer glow
+        this.ctx.beginPath();
+        this.ctx.moveTo(fromSat.currentX, fromSat.currentY);
+        this.ctx.lineTo(toSat.currentX, toSat.currentY);
+        this.ctx.strokeStyle = glowColor;
+        this.ctx.lineWidth = connectionType === 'circular' ? 2 : 1;
+        this.ctx.stroke();
+        
+        // Draw main line
+        this.ctx.beginPath();
+        this.ctx.moveTo(fromSat.currentX, fromSat.currentY);
+        this.ctx.lineTo(toSat.currentX, toSat.currentY);
+        this.ctx.strokeStyle = baseColor;
+        this.ctx.lineWidth = connectionType === 'circular' ? 1.5 : 0.8;
+        this.ctx.stroke();
+        
+        // Add subtle flowing particles only for circular connections
+        if (connectionType === 'circular') {
+          const particleProgress = (time * 0.3) % 1;
+          const particleX = fromSat.currentX + (toSat.currentX - fromSat.currentX) * particleProgress;
+          const particleY = fromSat.currentY + (toSat.currentY - fromSat.currentY) * particleProgress;
+          
+          this.ctx.beginPath();
+          this.ctx.arc(particleX, particleY, 1.5, 0, Math.PI * 2);
+          this.ctx.fillStyle = `rgba(255, 255, 255, ${opacity * 0.6})`;
+          this.ctx.fill();
+        }
+      }
+    }
+
+    // Initialize satellite network when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      new SatelliteNetwork();
+      initializeAuthModal();
+    });
+
+    // Auth Modal Functionality
+    function initializeAuthModal() {
+      const loginBtn = document.getElementById('login-btn');
+      const authModal = document.getElementById('auth-modal');
+      const closeModal = document.getElementById('close-modal');
+      const tabButtons = document.querySelectorAll('.tab-button');
+      const tabContents = document.querySelectorAll('.tab-content');
+      const accountTypeBtns = document.querySelectorAll('.account-type-btn');
+
+      // Open modal
+      loginBtn.addEventListener('click', () => {
+        authModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      });
+
+      // Close modal
+      closeModal.addEventListener('click', () => {
+        authModal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+      });
+
+      // Close modal when clicking outside
+      authModal.addEventListener('click', (e) => {
+        if (e.target === authModal) {
+          authModal.classList.remove('active');
+          document.body.style.overflow = 'auto';
+        }
+      });
+
+      // Tab switching
+      tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const targetTab = button.getAttribute('data-tab');
+          
+          // Update tab buttons
+          tabButtons.forEach(btn => btn.classList.remove('active'));
+          button.classList.add('active');
+          
+          // Update tab content
+          tabContents.forEach(content => {
+            content.classList.remove('active');
+            if (content.id === `${targetTab}-tab`) {
+              content.classList.add('active');
+            }
+          });
+        });
+      });
+
+      // Account type switching
+      accountTypeBtns.forEach(button => {
+        button.addEventListener('click', () => {
+          const parentSelector = button.closest('.account-type-selector');
+          const siblingBtns = parentSelector.querySelectorAll('.account-type-btn');
+          
+          siblingBtns.forEach(btn => btn.classList.remove('active'));
+          button.classList.add('active');
+        });
+      });
+
+      // Form submissions
+      const authForms = document.querySelectorAll('.auth-form');
+      authForms.forEach(form => {
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          
+          // Get form data
+          const formData = new FormData(form);
+          const isSignup = form.closest('#signup-tab');
+          const activeAccountType = form.closest('.tab-content').querySelector('.account-type-btn.active').getAttribute('data-type');
+          
+          console.log('Form submitted:', {
+            type: isSignup ? 'signup' : 'login',
+            accountType: activeAccountType,
+            data: Object.fromEntries(formData)
+          });
+          
+          // Here you would typically send the data to your backend
+          alert(`${isSignup ? 'Sign up' : 'Login'} successful for ${activeAccountType} account!`);
+          
+          // Close modal
+          authModal.classList.remove('active');
+          document.body.style.overflow = 'auto';
+        });
+      });
+    }
+  </script>
+</body>
+</html>
+
+<style>
+  .page-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .mesh-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .spaceship-overlay {
+    position: fixed;
+    bottom: 45%;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    z-index: 10000;
+    pointer-events: none;
+    width: 100%;
+  }
+
+  .spaceship-title {
+    font-size: 4rem;
+    font-weight: bold;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0;
+    text-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
+    filter: drop-shadow(0 0 10px rgba(102, 126, 234, 0.8));
+  }
+
+  .spaceship-tagline {
+    font-size: 1rem;
+    color: #ffffff;
+    margin: 0.2rem 0 0 0;
+    opacity: 0.95;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+    font-weight: 300;
+  }
+
+  @media (max-width: 768px) {
+    .spaceship-title {
+      font-size: 2.5rem;
+    }
+    
+    .spaceship-tagline {
+      font-size: 0.85rem;
+    }
+  }
+
+  /* Get Started Button Styles */
+  .get-started-button {
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+    z-index: 1000;
+    padding: 0.5rem 1rem;
+    background: #000000;
+    border: 2px solid #000000;
+    border-radius: 6px;
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    pointer-events: auto;
+    box-shadow: 3px 3px 0px #6366f1;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  .get-started-button:hover {
+    background: #1a1a1a;
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0px #6366f1;
+  }
+
+  .get-started-button:active {
+    transform: translate(1px, 1px);
+    box-shadow: 2px 2px 0px #6366f1;
+  }
+
+  /* Modal Styles */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .modal-content {
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+    width: 90%;
+    max-width: 480px;
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    position: relative;
+    transform: scale(0.9) translateY(20px);
+    transition: all 0.3s ease;
+  }
+
+  .modal-overlay.active .modal-content {
+    transform: scale(1) translateY(0);
+  }
+
+  .close-button {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: none;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    z-index: 1;
+  }
+
+  .close-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+  }
+
+  .auth-container {
+    padding: 2.5rem;
+  }
+
+  .auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .auth-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 0.5rem 0;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  }
+
+  .auth-subtitle {
+    color: #cccccc;
+    font-size: 0.95rem;
+    margin: 0;
+    font-weight: 400;
+  }
+
+  /* Tab Navigation */
+  .tab-navigation {
+    display: flex;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 0.25rem;
+    margin-bottom: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .tab-button {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: none;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #999999;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .tab-button.active {
+    background: #ffffff;
+    color: #000000;
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
+  }
+
+  /* Tab Content */
+  .tab-content {
+    display: none;
+  }
+
+  .tab-content.active {
+    display: block;
+  }
+
+  /* Ensure login tab is shown by default */
+  #login-tab {
+    display: block;
+  }
+
+  #signup-tab {
+    display: none;
+  }
+
+  /* Account Type Selector */
+  .account-type-selector {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .account-type-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: #999999;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .account-type-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #cccccc;
+  }
+
+  .account-type-btn.active {
+    background: #ffffff;
+    border-color: #ffffff;
+    color: #000000;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  }
+
+  .account-type-btn svg {
+    opacity: 0.9;
+  }
+
+  /* Form Styles */
+  .auth-form {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #ffffff;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-group input {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    background: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+  }
+
+  .form-group input:focus {
+    outline: none;
+    border-color: #ffffff;
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+  }
+
+  .form-group input::placeholder {
+    color: #999999;
+  }
+
+  .submit-button {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    background: #ffffff;
+    border: none;
+    border-radius: 10px;
+    color: #000000;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .submit-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.4);
+    background: #f0f0f0;
+  }
+
+  .submit-button:active {
+    transform: translateY(0);
+  }
+
+  /* Auth Footer */
+  .auth-footer {
+    text-align: center;
+  }
+
+  .forgot-password {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: color 0.2s ease;
+  }
+
+  .forgot-password:hover {
+    color: #cccccc;
+  }
+
+  .terms-text {
+    font-size: 0.8rem;
+    color: #999999;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .terms-text a {
+    color: #ffffff;
+    text-decoration: none;
+  }
+
+  .terms-text a:hover {
+    text-decoration: underline;
+    color: #cccccc;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 640px) {
+    .get-started-button {
+      top: 1rem;
+      right: 1rem;
+      padding: 0.625rem 1.25rem;
+      font-size: 0.85rem;
+    }
+
+    .auth-container {
+      padding: 2rem 1.5rem;
+    }
+
+    .auth-title {
+      font-size: 1.5rem;
+    }
+
+    .account-type-selector {
+      flex-direction: column;
+    }
+
+    .modal-content {
+      margin: 1rem;
+      width: calc(100% - 2rem);
+    }
+  }
+</style>
