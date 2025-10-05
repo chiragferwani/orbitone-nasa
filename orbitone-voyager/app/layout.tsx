@@ -1,0 +1,33 @@
+import type React from "react"
+import type { Metadata } from "next"
+import { GeistSans } from "geist/font/sans"
+import { GeistMono } from "geist/font/mono"
+import { Analytics } from "@vercel/analytics/next"
+import "./globals.css"
+import { Suspense } from "react"
+
+export const metadata: Metadata = {
+  title: "OrbitOne",
+  description:
+    "Experience the future of space business with OrbitOne. Plan virtual missions, explore sustainability metrics, and journey beyond Earth.",
+  generator: "v0.app",
+  icons: {
+    icon: '/logo.png',
+    apple: '/logo.png',
+  },
+}
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode
+}>) {
+  return (
+    <html lang="en" className="dark">
+      <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
+        <Suspense fallback={null}>{children}</Suspense>
+        <Analytics />
+      </body>
+    </html>
+  )
+}
