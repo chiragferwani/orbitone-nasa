@@ -1,0 +1,114 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Space Operations Theme - Deep Space with Neon Accents */
+    --background: 220 25% 5%;
+    --foreground: 180 100% 90%;
+
+    --card: 220 25% 8%;
+    --card-foreground: 180 100% 90%;
+
+    --popover: 220 25% 8%;
+    --popover-foreground: 180 100% 90%;
+
+    --primary: 195 100% 50%;
+    --primary-foreground: 220 25% 5%;
+
+    --secondary: 270 95% 60%;
+    --secondary-foreground: 220 25% 5%;
+
+    --muted: 220 20% 15%;
+    --muted-foreground: 180 20% 60%;
+
+    --accent: 195 100% 50%;
+    --accent-foreground: 220 25% 5%;
+
+    --destructive: 0 85% 60%;
+    --destructive-foreground: 180 100% 90%;
+
+    --success: 140 85% 50%;
+    --success-foreground: 220 25% 5%;
+
+    --warning: 45 95% 55%;
+    --warning-foreground: 220 25% 5%;
+
+    --border: 195 100% 50% / 0.2;
+    --input: 195 100% 50% / 0.1;
+    --ring: 195 100% 50%;
+
+    --radius: 0.75rem;
+
+    /* Custom space theme colors */
+    --neon-cyan: 185 100% 50%;
+    --neon-purple: 270 95% 60%;
+    --orbital-blue: 217 91% 60%;
+    --space-dark: 220 25% 5%;
+    --space-darker: 220 30% 3%;
+    
+    /* Glass morphism */
+    --glass-bg: 220 25% 15% / 0.1;
+    --glass-border: 195 100% 50% / 0.15;
+    
+    /* Glows */
+    --glow-cyan: 0 0 20px hsl(185 100% 50% / 0.5);
+    --glow-purple: 0 0 20px hsl(270 95% 60% / 0.5);
+    --glow-blue: 0 0 20px hsl(217 91% 60% / 0.5);
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--glass-bg)),
+      hsl(220 25% 10% / 0.05)
+    );
+    backdrop-filter: blur(20px);
+    border: 1px solid hsl(var(--glass-border));
+    box-shadow: 0 8px 32px 0 hsl(195 100% 50% / 0.1);
+  }
+  
+  .neon-glow {
+    box-shadow: var(--glow-cyan);
+    border: 1px solid hsl(var(--neon-cyan) / 0.5);
+  }
+  
+  .neon-text {
+    color: hsl(var(--neon-cyan));
+    text-shadow: 0 0 10px hsl(var(--neon-cyan) / 0.7),
+                 0 0 20px hsl(var(--neon-cyan) / 0.5);
+  }
+  
+  .grid-bg {
+    background-image: 
+      linear-gradient(hsl(195 100% 50% / 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(195 100% 50% / 0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
